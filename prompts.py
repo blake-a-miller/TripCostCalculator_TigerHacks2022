@@ -18,7 +18,3 @@ print("Enter the model of your vehicle: ")
 model = input("")
 
 print("Excellent, " + username + ". You will be traveling to " + destination + " in your " + year + " " + make + " " + model + ".")
-
-vehicleRangeByType = {
-    
-}
