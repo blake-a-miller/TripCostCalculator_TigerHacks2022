@@ -101,4 +101,6 @@ def carType(make, model, year):
         return VClass
 
 
-
+def totalCost(mpg, distance, gasPrice):
+    total = (distance * gasPrice)/mpg
+    return total
