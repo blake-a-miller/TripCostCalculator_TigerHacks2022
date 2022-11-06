@@ -1,43 +1,53 @@
-import requests
-import xmltodict
-import json
-MapBoxToken = "pk.eyJ1IjoiamVybWIiLCJhIjoiY2xhMzdkaDQ4MDZxeTNvcnhhaHdxMzJ6NiJ9.F7i3IZFcmZM1UNP5pTPFBA"
-MapBoxURL = "https://api.mapbox.com/directions/v5/"
-# https://api.mapbox.com/directions/v5/{profile}/{coordinates}
-FuelEconomyURL = "https://www.fueleconomy.gov/ws/rest/"
+import re
+import route
+import prices
+import ranges
+import prompts
+import car
 
 def main():
-    response = requests.get(MapBoxURL + "mapbox/driving/-92.3215827,38.9112572;-92.332617,38.9459675?access_token=" + MapBoxToken)
-    print(response)
-    # route = json.load(response.content)
-    print(response.json())
-    # car = car(2012, "Honda", "Accord")
-    # mpg = getMPG(carID)
-    # print(mpg)
+    name = prompts.getName()
+    addressing = True
+    trip = None
+    start = None
+    end = None
+    while(addressing):
+        print("What is your current location?")
+        start = f"{prompts.getAddress()}, {prompts.getCity()}, {prompts.getState()}"
+        print("Where are you going?")
+        end = f"{prompts.getAddress()}, {prompts.getCity()}, {prompts.getState()}"
+        addressing=False
+        try:
+            trip = route.Route(start, end)
+        except:
+            print("Sorry! One of the locations you input was invalid. Please try again.\n")
 
-def getxml(path):
-    try:
-        response = requests.get(FuelEconomyURL + path)
-        data = xmltodict.parse(response.content)
-        print(data)
-        return data
-    except Exception as ex:
-        print("Exception: " + ex)
+    carIDing = True
+    while(carIDing):
+        try:
+            make = prompts.getMake()
+            model = prompts.getModel()
+            year = prompts.getYear()
 
-def car(year, make, model):
-    path = f"vehicle/menu/options?year={year}&make={make}&model={model}"
-    return getxml(path).get("menuItems").get("menuItem")[0].get("value")
-    # print(car)
-    # getMPG(car)
-#     # if year==None or make==None or model==None:
-#     #     raise Exception("Please fill out all parameters")
-#     # else:
-#     #     path = f"year={year}&make={make}&model={model}"
-#     #     getxml(path)
+            mpg = car.getMPG(make, model, year)
+            fuel_type = car.getFuelType(make, model, year)
+            car_type = car.carType(make, model, year)
 
-def getMPG(car):
-    path = f"ympg/shared/ympgVehicle/{car}"
-    return getxml(path).get("yourMpgVehicle").get("avgMpg")
+            gas_price = prices.getGasPrice(trip.states, fuel_type)
+            total_gas_price = car.totalCost(mpg, trip.distance, gas_price)
+            print(f"Excellent, {name}. You will be traveling to: {end} in your {year} {make} {model}.")
+            print(f"It is {trip.distance} miles. Trip duration: {trip.duration}")
+            print(f"The average cost of gas on the way to your destination is ${gas_price}.")
+            print(f"It will cost ~${total_gas_price}.")
+            ranges.getFillups(car_type, trip)
+            carIDing = False
+        except Exception as e:
+            print(e)
+            print("There was an issue processing your car. Please try again.\n")
 
-if __name__ == "__main__":
-    main()
+    print("Thank you for using our service!")
+
+main()
+
+
+

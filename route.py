@@ -2,6 +2,7 @@ import requests
 import json
 import datetime
 import StateBounds as bounds
+import ranges as gasRange
 
 MapBoxToken = "pk.eyJ1IjoiamVybWIiLCJhIjoiY2xhMzdkaDQ4MDZxeTNvcnhhaHdxMzJ6NiJ9.F7i3IZFcmZM1UNP5pTPFBA"
 MapBoxURL = "https://api.mapbox.com/directions/v5/"
@@ -37,16 +38,17 @@ class Route:
         try:
             response = requests.get(f"{MapBoxURL2}{path}.json?access_token={MapBoxToken}&limit=1")
         except Exception as ex:
-            print("Exception: " + e)
+            # print("Exception: " + e)
+            raise Exception
         data = response.json()
         coords = data.get("features")[0]["geometry"]["coordinates"]
         self.states.append(bounds.getState(coords))
-        print(bounds.getState(coords))
+        # print(bounds.getState(coords))
         return coords
 
     def calcRoute(self, start, end):
-        print(f"start={start}")
-        print(f"end={end}")
+        # print(f"start={start}")
+        # print(f"end={end}")
         response = requests.get(f"{MapBoxURL}mapbox/driving/{start[0]},{start[1]};{end[0]},{end[1]}?steps=true&access_token={MapBoxToken}")
         # waypoint_data = response.json().get("routes")[0].get("legs")[0].get("steps")[0].get("intersections")[0].get("location")
         data = response.json().get("routes")[0]
@@ -67,10 +69,4 @@ class Route:
             state = bounds.getState(point)
             if state not in self.states:
                 self.states.append(state)
-        print(self.states)      
-        
-
-def init():
-    r = Route("las vegas, nevada", "columbia, missouri")
-
-init()
+        # print(self.states)      
