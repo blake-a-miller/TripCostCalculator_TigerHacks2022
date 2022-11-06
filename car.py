@@ -43,7 +43,7 @@ def getMPG(make, model, year):
     MPG = "0"
     
     response = requests.get(FuelEconomyURL+path)
-    print(response)
+    
     data = xmltodict.parse(response.content)
 
     for x in data.get("vehicles").get("vehicle"):
@@ -65,7 +65,7 @@ def getFuelType(make, model, year):
     fuelType = "Regular"
     
     response = requests.get(FuelEconomyURL+path)
-    print(response)
+    
     data = xmltodict.parse(response.content)
 
     for x in data.get("vehicles").get("vehicle"):
@@ -84,7 +84,7 @@ def carType(make, model, year):
     VClass = "none"
     
     response = requests.get(FuelEconomyURL+path)
-    print(response)
+    
     data = xmltodict.parse(response.content)
 
     for x in data.get("vehicles").get("vehicle"):
